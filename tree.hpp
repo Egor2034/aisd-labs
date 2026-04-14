@@ -176,7 +176,7 @@ private:
         if (key < node->key) {
             node->left = erase_rec(node->left, key, erased);
         }
-        else if (key < node->key) {
+        else if (key > node->key) {
             node->right = erase_rec(node->right, key, erased);
         }
         else {
@@ -203,7 +203,7 @@ private:
     } 
 
     void clear(Node* node) {
-        if (root == nullptr) { return; }
+        if (node == nullptr) { return; }
 
         clear(node->right);
         clear(node->left);
@@ -231,14 +231,14 @@ public:
 
     bool insert(int key) {
         bool inserted = false;
-        insert_rec(root, key, inserted);
+        root = insert_rec(root, key, inserted);
         return inserted;
     }
 
     bool contains(int key) const {
         Node* current = root;
 
-        while (current != root) {
+        while (current != nullptr) {
             if (key > current->key) {
                 current = current->right;
             }
@@ -268,5 +268,28 @@ public:
         return erased;
     }
 };
+
+std::vector<int> uniq_elements(const std::vector<int>& vect) {
+    AvlTree tree;
+    AvlTree duplicates;
+    std::vector<int> result;
+
+    for (size_t i = 0; i < vect.size(); i++) {
+        if (tree.contains(vect[i])) {
+            duplicates.insert(vect[i]);
+        }
+        else {
+            tree.insert(vect[i]);
+        }
+    }
+    
+    for (size_t i = 0; i < vect.size(); i++) {
+        if (!duplicates.contains(vect[i])) {
+            result.push_back(vect[i]);
+        }
+    }
+
+    return result;
+}
 
 #endif
