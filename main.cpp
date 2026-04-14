@@ -1,13 +1,14 @@
 #include <iostream>
+#include <windows.h>
 #include "tree.hpp"
+#include "tests.cpp"
 
 int main() {
-    std::vector<int> vect { 3, 2, 2, 4, 2, 3 };
-    std::vector<int> result = uniq_elements(vect);
-
-    for (int i = 0; i < result.size(); i++) {
-        std::cout << result[i] << " ";
-    }
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    
+    tests();
+    
 
     return 0;
 }
