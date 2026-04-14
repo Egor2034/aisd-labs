@@ -2,17 +2,18 @@
 #define AVL_TREE_HPP
 
 #include <iostream>
+#include <vector>
 
 /*
-конструктор копирования +;
-деструктор +;
-оператор присваивания +;
-void print() – печать содержимого;
-bool insert(int key) – вставка элемента +;
-bool contains(int key) -  проверка наличия элемента +;
+конструктор копирования +
+деструктор +
+оператор присваивания +
+void print() – печать содержимого +
+bool insert(int key) – вставка элемента +
+bool contains(int key) -  проверка наличия элемента +
 bool erase(int key) – удаление элемента;
-bool strictly_balanced() - проверка, является ли дерево строго сбалансированным.
-а также вспомогательные функции для балансировки дерева.
+bool strictly_balanced() - проверка, является ли дерево строго сбалансированным +
+а также вспомогательные функции для балансировки дерева +
 */
 
 size_t lcg(){
@@ -136,6 +137,71 @@ private:
         return copy;
     }
 
+    void print_node(Node* node) const {
+        if (node == nullptr) { return; }
+
+        print_node(node->left);
+        std::cout << node->key << " ";
+        print_node(node->right);
+    }
+
+    bool is_balanced_rec(Node* node) const {
+        if (node == nullptr) { return true; }
+
+        int balance_factor = get_bal_fact(node);
+
+        if (balance_factor < -1 || balance_factor > 1) {
+            return false;
+        }
+        
+        return (is_balanced_rec(node->right) && is_balanced_rec(node->left));
+    }
+
+    Node* find_min(Node* node) const {
+        Node* min_node = node;
+
+        while (min_node != nullptr && min_node->left != nullptr) {
+            min_node = min_node->left;
+        }
+        
+        return min_node;
+    }
+
+    Node* erase_rec(Node* node, int key, bool& erased) {
+        if (node == nullptr) {
+            erased = false;
+            return nullptr;
+        }
+
+        if (key < node->key) {
+            node->left = erase_rec(node->left, key, erased);
+        }
+        else if (key < node->key) {
+            node->right = erase_rec(node->right, key, erased);
+        }
+        else {
+            erased = true;
+
+            if (node->left == nullptr || node->right == nullptr) {
+                Node* temp;
+
+                if (node->left == nullptr) { temp = node->left; }
+                else { temp = node->right; }
+
+                delete node;
+                return temp;
+            }
+            else {
+                Node* min_right = find_min(node->right);
+                node->key = min_right->key;
+                node->right = erase_rec(node->right, min_right->key, erased);
+            }
+        }
+
+        update_height(node);
+        return balance(node);
+    } 
+
     void clear(Node* node) {
         if (root == nullptr) { return; }
 
@@ -169,7 +235,7 @@ public:
         return inserted;
     }
 
-    bool contains(int key) {
+    bool contains(int key) const {
         Node* current = root;
 
         while (current != root) {
@@ -185,6 +251,21 @@ public:
         }
 
         return false;
+    }
+
+    bool strictly_balanced() const {
+        return is_balanced_rec(root);
+    }
+
+    void print() const {
+        print_node(root);
+        std::cout << "\n";
+    }
+
+    bool erase(int key) {   
+        bool erased = false;
+        root = erase_rec(root, key, erased);
+        return erased;
     }
 };
 
