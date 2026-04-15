@@ -59,8 +59,8 @@ private:
     }
     
     Node* rotate_right(Node* node) {
-        Node* left_node = node->left;
-        Node* rl_node = left_node->right;
+        Node* left_node = node->left; //12
+        Node* rl_node = left_node->right; //nullptr
 
         left_node->right = node;
         node->left = rl_node;
@@ -114,7 +114,7 @@ private:
         return balance(node);
     }
 
-    Node* copy_node(Node* node) {
+    Node* copy_node(Node* node) const {
         if (node == nullptr) { return nullptr; }
 
         Node* copy = new Node(node->key);
@@ -173,8 +173,8 @@ private:
             if (node->left == nullptr || node->right == nullptr) {
                 Node* temp;
 
-                if (node->left == nullptr) { temp = node->left; }
-                else { temp = node->right; }
+                if (node->left == nullptr) { temp = node->right; }
+                else { temp = node->left; }
 
                 delete node;
                 return temp;
