@@ -126,6 +126,37 @@ public:
         _buckets[index] = to_add;
     }
 
+    bool erase(int key) {
+        size_t index = hash(key);
+
+        if (_buckets[index] == nullptr) { return false; }
+        
+        if (_buckets[index]->key == key) {
+            ListNode<T>* to_del = _buckets[index];
+            _buckets[index] = _buckets[index]->next;
+            delete to_del;
+            return true;
+        }
+
+        
+        ListNode<T>* prev = _buckets[index];
+        ListNode<T>* current = prev->next;
+        
+        while (current != nullptr) {
+            if (current->key == key) {
+                ListNode<T>* to_del = current;
+                prev->next = current->next;
+                delete to_del;
+                return true;
+            }
+
+            prev = current;
+            current = current->next;
+        }
+
+        return false;
+    }
+
     void print() const {
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = _buckets[i];

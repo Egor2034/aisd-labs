@@ -22,6 +22,10 @@ int main() {
 
     std::cout << "\n\n";
     HashTable<int> t1 = table;
+    
+    t1.erase(141);
+    t1.erase(1);
+    t1.erase(5);
     t1.print();
     std::cout << "\n";
 
