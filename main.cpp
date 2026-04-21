@@ -1,33 +1,27 @@
 #include <iostream>
 #include <windows.h>
 #include "table.hpp"
+#include "task.hpp"
 
 int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     
-    HashTable<int, int> table(8);
-    table.insert(4, 13);
-    table.insert(5, 11);
-    table.insert(6, 113);
-    table.insert(7, 1);
-    table.insert(8, 6);
-    table.insert(9, 3);
-    table.insert(1, 3135);
-    table.insert(13, 351);
-    table.insert(141, 1113);
+    HashTable<int> roman_map(16);
 
-    *table.search(4) = 124; 
-    table.print();
+    roman_map.insert('I', 1);
+    roman_map.insert('V', 5);
+    roman_map.insert('X', 10);
+    roman_map.insert('L', 50);
+    roman_map.insert('C', 100);
+    roman_map.insert('D', 500);
+    roman_map.insert('M', 1000);
 
-    std::cout << "\n\n";
-    HashTable<int, int> t1 = table;
+    std::string str;
+    std::cin >> str;
+
+    int dec = rom_to_dec(str, roman_map);
+    std::cout << dec;
     
-    t1.erase(141);
-    t1.erase(1);
-    t1.erase(5);
-    t1.print();
-    std::cout << "\n";
-
     return 0;
 }

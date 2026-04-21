@@ -123,7 +123,7 @@ public:
         return true;
     }
 
-    void insert_or_assign(int key, T &value) {
+    void insert_or_assign(int key, const T &value) {
         size_t index = hash(key);
 
         ListNode<T>* current = _buckets[index];
@@ -169,7 +169,6 @@ public:
 
         return false;
     }
-    
     void print() const {
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = _buckets[i];
