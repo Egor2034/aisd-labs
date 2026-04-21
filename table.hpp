@@ -3,22 +3,6 @@
 
 #include <iostream>
 
-/*
-Конструктор пустой хэш таблицы заданного размера +
-Конструктор копирования; +
-bool insert(int key, const T &value) – вставка значения по ключу; +
-void insert_or_assign(int key, T &value) - вставка или присвоение значения по ключу. +
-void print() – печать содержимого; +
-bool contains(T &value) -  проверка наличия элемента; +
-T* search(int key) - поиск элемента; +
-int count(int key) - возвращает количество элементов, у которых значение хэш-функции совпадает с переданным. +
-
-Конструктор, заполняющий хэш таблицу случайными значениями согласно вашему заданию.
-Деструктор;
-Оператор присваивания;
-bool erase(int key) – удаление элемента по значению;
-*/
-
 template <typename T>
 struct ListNode {
         T value;
@@ -38,8 +22,31 @@ private:
     const size_t W = 64;
     size_t _l;
 
-    size_t hash(int key) {
+    size_t hash(int key) const {
         return (key * A) >> (W - _l);
+    }
+
+    ListNode<T>** copy() const {
+        ListNode<T>** new_buckets = new ListNode<T>*[_size]();
+
+        for (size_t i = 0; i < _size; i++) {
+            ListNode<T>* current = _buckets[i];
+            ListNode<T>* tail;
+
+            while (current != nullptr) {
+                if (new_buckets[i] == nullptr) {
+                    new_buckets[i] = new ListNode<T>(current->key, current->value, nullptr);
+                    tail = new_buckets[i];
+                }
+                else {
+                    tail->next = new ListNode<T>(current->key, current->value, nullptr);
+                    tail = tail->next;
+                }
+                current = current->next;
+            }
+        }
+
+        return new_buckets;
     }
 
 public:
@@ -63,26 +70,9 @@ public:
     }
 
     HashTable(const HashTable<T>& other) {
-        _buckets = new ListNode<T>*[other.get_size()]();
+        _buckets = other.copy();
         _size = other.get_size();
         _l = other._l;
-
-        for (size_t i = 0; i < _size; i++) {
-            ListNode<T>* current = other._buckets[i];
-            ListNode<T>* tail;
-
-            while (current != nullptr) {
-                if (_buckets[i] == nullptr) {
-                    _buckets[i] = new ListNode(current->key, current->value, nullptr);
-                    tail = _buckets[i];
-                }
-                else {
-                    tail->next = new ListNode(current->key, current->value, nullptr);
-                    tail = tail->next;
-                }
-                current = current->next;
-            }
-        }
     }
     
     ~HashTable() {
@@ -90,6 +80,19 @@ public:
         delete[] _buckets;
     }
 
+    HashTable& operator=(const HashTable<T>& other) {
+        if (this == &other) { return *this; }
+
+        clear();
+        delete[] _buckets;
+
+        _buckets = other.copy();
+        _size = other.get_size();
+        _l = other._l;
+
+        return *this;
+    }
+    
     bool insert(int key, const T &value) {
         size_t index = hash(key);
 
@@ -101,7 +104,7 @@ public:
             current = current->next;
         }
 
-        ListNode<T>* to_add = new ListNode(key, value, _buckets[index]);
+        ListNode<T>* to_add = new ListNode<T>(key, value, _buckets[index]);
         _buckets[index] = to_add;
 
         return true;
@@ -119,7 +122,7 @@ public:
             current = current->next;
         }
 
-        ListNode<T>* to_add = new ListNode(key, value, _buckets[index]);
+        ListNode<T>* to_add = new ListNode<T>(key, value, _buckets[index]);
         _buckets[index] = to_add;
     }
 
@@ -191,6 +194,8 @@ public:
     }
 
     void clear() {
+        if (_buckets == nullptr) return;
+
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = _buckets[i];
             while (current != nullptr) {

@@ -20,6 +20,9 @@ int main() {
     *table.search(4) = 124; 
     table.print();
 
+    std::cout << "\n\n";
+    HashTable<int> t1 = table;
+    t1.print();
     std::cout << "\n";
 
     return 0;
