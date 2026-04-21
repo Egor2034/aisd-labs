@@ -17,7 +17,6 @@ class HashTable {
 private:
     ListNode<T>** _buckets;
     size_t _size;
-    size_t _count;
 
     const size_t A = 11400714819323198485;
     const size_t W = 64;
@@ -28,7 +27,7 @@ private:
     }
 
 public:
-    HashTable(size_t size) : _count(0) {
+    HashTable(size_t size) {
         if (size == 0) {
             _size = 0;
             _l = 0;
@@ -49,11 +48,8 @@ public:
 
     HashTable(const HashTable<T>& other) {
         _buckets = new ListNode<T>*[other.get_size()]();
-        _count = other.get_count();
         _size = other.get_size();
         _l = other._l;
-
-        if (_count == 0) { return; }
 
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = other._buckets[i];
@@ -86,7 +82,6 @@ public:
 
         ListNode<T>* to_add = new ListNode(key, value, _buckets[index]);
         _buckets[index] = to_add;
-        _count++;
 
         return true;
     }
@@ -105,7 +100,6 @@ public:
 
         ListNode<T>* to_add = new ListNode(key, value, _buckets[index]);
         _buckets[index] = to_add;
-        _count++;
     }
 
     void print() const {
@@ -151,7 +145,7 @@ public:
     const T* search(int key) const {
         size_t index = hash(key);
 
-        const ListNode<T>* current = _buckets[index];
+        ListNode<T>* current = _buckets[index];
         while (current != nullptr) {
             if (current->key == key) {
                 return &(current->value);
@@ -162,13 +156,20 @@ public:
         throw "The table does not contain an element for the given key!"; 
     }
 
-    size_t get_size() const {
-        return _size;
+    size_t count(int key) const {
+        size_t index = hash(key);
+        size_t count = 0;
+
+        ListNode<T>* current = _buckets[index];
+        while (current != nullptr) { 
+            count++;
+            current = current->next;
+        }
+
+        return count;
     }
 
-    size_t get_count() const {
-        return _count;
-    }
+    size_t get_size() const { return _size; }
 };
 
 #endif
