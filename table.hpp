@@ -3,6 +3,22 @@
 
 #include <iostream>
 
+/*
+Конструктор пустой хэш таблицы заданного размера +
+Конструктор копирования; +
+bool insert(int key, const T &value) – вставка значения по ключу; +
+void insert_or_assign(int key, T &value) - вставка или присвоение значения по ключу. +
+void print() – печать содержимого; +
+bool contains(T &value) -  проверка наличия элемента; +
+T* search(int key) - поиск элемента; +
+int count(int key) - возвращает количество элементов, у которых значение хэш-функции совпадает с переданным. +
+
+Конструктор, заполняющий хэш таблицу случайными значениями согласно вашему заданию.
+Деструктор;
+Оператор присваивания;
+bool erase(int key) – удаление элемента по значению;
+*/
+
 template <typename T>
 struct ListNode {
         T value;
@@ -69,6 +85,11 @@ public:
         }
     }
     
+    ~HashTable() {
+        clear();
+        delete[] _buckets;
+    }
+
     bool insert(int key, const T &value) {
         size_t index = hash(key);
 
@@ -167,6 +188,19 @@ public:
         }
 
         return count;
+    }
+
+    void clear() {
+        for (size_t i = 0; i < _size; i++) {
+            ListNode<T>* current = _buckets[i];
+            while (current != nullptr) {
+                ListNode<T>* to_del = current;
+                current = current->next;
+                delete to_del;
+            }
+
+            _buckets[i] = nullptr;
+        }
     }
 
     size_t get_size() const { return _size; }
