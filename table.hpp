@@ -3,43 +3,47 @@
 
 #include <iostream>
 
-template <typename T>
+template <typename K, typename T>
 struct ListNode {
         T value;
-        int key;
+        K key;
 
         ListNode* next;
-        ListNode(int k, T v, ListNode* n = nullptr) : key(k), value(v), next(n) {}
+        ListNode(K k, T v, ListNode* n = nullptr) : key(k), value(v), next(n) {}
     };
 
-template <typename T>
+template <typename K, typename T>
 class HashTable {
 private:
-    ListNode<T>** _buckets;
+    ListNode<K, T>** _buckets;
     size_t _size;
 
     const size_t A = 11400714819323198485;
     const size_t W = 64;
     size_t _l;
 
-    size_t hash(int key) const {
+    size_t hash(K key) const {
         return (key * A) >> (W - _l);
     }
 
-    ListNode<T>** copy() const {
-        ListNode<T>** new_buckets = new ListNode<T>*[_size]();
+    size_t hash(std::string key) const {
+        return (key.length() * A) >> (W - _l);
+    }
+
+    ListNode<K, T>** copy() const {
+        ListNode<K, T>** new_buckets = new ListNode<K, T>*[_size]();
 
         for (size_t i = 0; i < _size; i++) {
-            ListNode<T>* current = _buckets[i];
-            ListNode<T>* tail;
+            ListNode<K, T>* current = _buckets[i];
+            ListNode<K, T>* tail;
 
             while (current != nullptr) {
                 if (new_buckets[i] == nullptr) {
-                    new_buckets[i] = new ListNode<T>(current->key, current->value, nullptr);
+                    new_buckets[i] = new ListNode<K, T>(current->key, current->value, nullptr);
                     tail = new_buckets[i];
                 }
                 else {
-                    tail->next = new ListNode<T>(current->key, current->value, nullptr);
+                    tail->next = new ListNode<K, T>(current->key, current->value, nullptr);
                     tail = tail->next;
                 }
                 current = current->next;
@@ -47,6 +51,12 @@ private:
         }
 
         return new_buckets;
+    }
+
+    int lcg() {
+        static int x = 0;
+        x = (1021*x+24631) % 116640;
+        return x;
     }
 
 public:
@@ -65,22 +75,22 @@ public:
                 _l++;
             }
 
-            _buckets = new ListNode<T>*[_size]();
+            _buckets = new ListNode<K, T>*[_size]();
         }
     }
 
-    HashTable(const HashTable<T>& other) {
+    HashTable(const HashTable<K, T>& other) {
         _buckets = other.copy();
         _size = other.get_size();
         _l = other._l;
     }
-    
+
     ~HashTable() {
         clear();
         delete[] _buckets;
     }
 
-    HashTable& operator=(const HashTable<T>& other) {
+    HashTable& operator=(const HashTable<K, T>& other) {
         if (this == &other) { return *this; }
 
         clear();
@@ -93,10 +103,10 @@ public:
         return *this;
     }
     
-    bool insert(int key, const T &value) {
+    bool insert(K key, const T &value) {
         size_t index = hash(key);
 
-        ListNode<T>* current = _buckets[index];
+        ListNode<K, T>* current = _buckets[index];
         while (current != nullptr) {
             if (current->key == key) {
                 return false;
@@ -104,16 +114,16 @@ public:
             current = current->next;
         }
 
-        ListNode<T>* to_add = new ListNode<T>(key, value, _buckets[index]);
+        ListNode<K, T>* to_add = new ListNode<K, T>(key, value, _buckets[index]);
         _buckets[index] = to_add;
 
         return true;
     }
 
-    void insert_or_assign(int key, T &value) {
+    void insert_or_assign(K key, const T &value) {
         size_t index = hash(key);
 
-        ListNode<T>* current = _buckets[index];
+        ListNode<K, T>* current = _buckets[index];
         while (current != nullptr) {
             if (current->key == key) {
                 current->value = value;
@@ -122,29 +132,28 @@ public:
             current = current->next;
         }
 
-        ListNode<T>* to_add = new ListNode<T>(key, value, _buckets[index]);
+        ListNode<K, T>* to_add = new ListNode<K, T>(key, value, _buckets[index]);
         _buckets[index] = to_add;
     }
 
-    bool erase(int key) {
+    bool erase(K key) {
         size_t index = hash(key);
 
         if (_buckets[index] == nullptr) { return false; }
         
         if (_buckets[index]->key == key) {
-            ListNode<T>* to_del = _buckets[index];
+            ListNode<K, T>* to_del = _buckets[index];
             _buckets[index] = _buckets[index]->next;
             delete to_del;
             return true;
         }
 
-        
-        ListNode<T>* prev = _buckets[index];
-        ListNode<T>* current = prev->next;
+        ListNode<K, T>* prev = _buckets[index];
+        ListNode<K, T>* current = prev->next;
         
         while (current != nullptr) {
             if (current->key == key) {
-                ListNode<T>* to_del = current;
+                ListNode<K, T>* to_del = current;
                 prev->next = current->next;
                 delete to_del;
                 return true;
@@ -159,7 +168,7 @@ public:
 
     void print() const {
         for (size_t i = 0; i < _size; i++) {
-            ListNode<T>* current = _buckets[i];
+            ListNode<K, T>* current = _buckets[i];
             while (current != nullptr) {
                 std::cout << "{key: " << current->key << " , value: " << current->value << "} ";
                 current = current->next;
@@ -171,7 +180,7 @@ public:
 
     bool contains(const T& value) const {
         for (size_t i = 0; i < _size; i++) {
-            ListNode<T>* current = _buckets[i];
+            ListNode<K, T>* current = _buckets[i];
             while (current != nullptr) {
                 if (current->value == value) {
                     return true;
@@ -183,10 +192,10 @@ public:
         return false;
     }
     
-    T* search(int key) {
+    T* search(K key) {
         size_t index = hash(key);
 
-        ListNode<T>* current = _buckets[index];
+        ListNode<K, T>* current = _buckets[index];
         while (current != nullptr) {
             if (current->key == key) {
                 return &(current->value);
@@ -197,10 +206,10 @@ public:
         throw "The table does not contain an element for the given key!"; 
     }
     
-    const T* search(int key) const {
+    const T* search(K key) const {
         size_t index = hash(key);
 
-        ListNode<T>* current = _buckets[index];
+        ListNode<K, T>* current = _buckets[index];
         while (current != nullptr) {
             if (current->key == key) {
                 return &(current->value);
@@ -211,11 +220,11 @@ public:
         throw "The table does not contain an element for the given key!"; 
     }
 
-    size_t count(int key) const {
+    size_t count(K key) const {
         size_t index = hash(key);
         size_t count = 0;
 
-        ListNode<T>* current = _buckets[index];
+        ListNode<K, T>* current = _buckets[index];
         while (current != nullptr) { 
             count++;
             current = current->next;
@@ -228,9 +237,9 @@ public:
         if (_buckets == nullptr) return;
 
         for (size_t i = 0; i < _size; i++) {
-            ListNode<T>* current = _buckets[i];
+            ListNode<K, T>* current = _buckets[i];
             while (current != nullptr) {
-                ListNode<T>* to_del = current;
+                ListNode<K, T>* to_del = current;
                 current = current->next;
                 delete to_del;
             }

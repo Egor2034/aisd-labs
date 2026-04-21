@@ -6,7 +6,7 @@ int main() {
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
     
-    HashTable<int> table(8);
+    HashTable<int, int> table(8);
     table.insert(4, 13);
     table.insert(5, 11);
     table.insert(6, 113);
@@ -21,7 +21,7 @@ int main() {
     table.print();
 
     std::cout << "\n\n";
-    HashTable<int> t1 = table;
+    HashTable<int, int> t1 = table;
     
     t1.erase(141);
     t1.erase(1);
