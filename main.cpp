@@ -17,6 +17,7 @@ int main() {
     table.insert(13, 351);
     table.insert(141, 1113);
 
+    *table.search(4) = 124; 
     table.print();
 
     std::cout << "\n";

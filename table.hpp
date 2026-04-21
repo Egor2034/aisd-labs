@@ -3,23 +3,6 @@
 
 #include <iostream>
 
-/*
-Конструктор пустой хэш таблицы заданного размера +
-Конструктор копирования; +
-bool insert(int key, const T &value) – вставка значения по ключу; +
-void insert_or_assign(int key, T &value) - вставка или присвоение значения по ключу. +
-void print() – печать содержимого; +
-
-Конструктор, заполняющий хэш таблицу случайными значениями согласно вашему заданию.
-Деструктор;
-Оператор присваивания;
-bool contains(T &value) -  проверка наличия элемента;
-T* search(int key) - поиск элемента;
-bool erase(int key) – удаление элемента по значению;
-int count(int key) - возвращает количество элементов, у которых значение хэш-функции совпадает с переданным.
-
-*/
-
 template <typename T>
 struct ListNode {
         T value;
@@ -140,7 +123,7 @@ public:
     bool contains(const T& value) const {
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = _buckets[i];
-            whule (current != nullptr) {
+            while (current != nullptr) {
                 if (current->value == value) {
                     return true;
                 }
@@ -150,6 +133,35 @@ public:
 
         return false;
     }
+    
+    T* search(int key) {
+        size_t index = hash(key);
+
+        ListNode<T>* current = _buckets[index];
+        while (current != nullptr) {
+            if (current->key == key) {
+                return &(current->value);
+            }
+            current = current->next;
+        }
+
+        throw "The table does not contain an element for the given key!"; 
+    }
+    
+    const T* search(int key) const {
+        size_t index = hash(key);
+
+        const ListNode<T>* current = _buckets[index];
+        while (current != nullptr) {
+            if (current->key == key) {
+                return &(current->value);
+            }
+            current = current->next;
+        }
+
+        throw "The table does not contain an element for the given key!"; 
+    }
+
     size_t get_size() const {
         return _size;
     }
