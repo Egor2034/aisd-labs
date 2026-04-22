@@ -10,7 +10,7 @@ struct ListNode {
 
         ListNode* next;
         ListNode(int k, T v, ListNode* n = nullptr) : key(k), value(v), next(n) {}
-    };
+};
 
 template <typename T>
 class HashTable {
@@ -169,11 +169,12 @@ public:
 
         return false;
     }
+    
     void print() const {
         for (size_t i = 0; i < _size; i++) {
             ListNode<T>* current = _buckets[i];
             while (current != nullptr) {
-                std::cout << "{key: " << current->key << " , value: " << current->value << "} ";
+                std::cout << "{key: " << current->key << ", value: " << current->value << "} ";
                 current = current->next;
             }
 

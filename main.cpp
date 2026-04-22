@@ -21,7 +21,20 @@ int main() {
     std::cin >> str;
 
     int dec = rom_to_dec(str, roman_map);
-    std::cout << dec;
+    std::cout << dec << "\n";
+
+    HashTable<std::string> test(4);
+    
+    for (size_t k = 0; k < 6; k++) {
+        std::string temp;
+        std::cin >> temp;
+        test.insert(k, temp);
+    }
+
+    test.print();
+
+    HashTable<int> t1(32, 78);
+    t1.print();
     
     return 0;
 }
