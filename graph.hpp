@@ -17,15 +17,23 @@ private:
     std::vector<std::list<Distance>> _matrix;
     size_t _vert_count;
 
+    static constexpr Distance NO_EDGE = std::numeric_limits<Distance>::max();
+
     size_t get_index(const Vertex& vert) const {
         auto it = _indices.find(vert);
         if (it == _indices.end()) {
-            throw std::exception("Вершины нет в графе!");
+            throw std::runtime_error("Vertex not found!");
         }
 
         return it->second;
-    } 
+    }
     
+    Distance& at(std::list<Distance>& l, size_t index) {
+        auto it = l.begin();
+        std::advance(it, index);
+        return *it;
+    }
+
 public:
     //vertex - вершина 
     //edge - ребро 
@@ -39,9 +47,10 @@ public:
     };
 
     bool has_vertex(const Vertex& v) const {
-        if (_vertices.contains(v)) {
+        if (_indices.find(v) != _indices.end()) {
             return true;
         } 
+
         return false;
     }
 
@@ -55,10 +64,11 @@ public:
         _vertices.push_back(v);
 
         for (auto& row : _matrix) {
-            row.push_back(std::list<Distance>());
+            row.push_back(NO_EDGE);
         }
 
-        _matrices.push_back(std::list<Distance>(_vert_count));
+        _matrix.push_back(_vert_count, NO_EDGE);
+
         return true;
     }
 
@@ -71,7 +81,7 @@ public:
 
         _matrix.erase(_matrix.begin() + index);
 
-        for (auto& row : _matrices) {
+        for (auto& row : _matrix) {
             auto it = row.begin();
             std::advance(it, index);
             row.erase(it);
@@ -81,12 +91,13 @@ public:
         _vertices.erase(_vertices.begin() + index);
 
         for (auto& pair : _indices) {
-            if (pair->second > index) {
-                pair->second--;
+            if (pair.second > index) {
+                pair.second--;
             }
         }
 
         _vert_count--;
+        
         return true;
     }
 
@@ -94,11 +105,69 @@ public:
         return _vertices;
     }
 
-    void add_edge(const Vertex& from, const Vertex& to, const Distance& d);
-    bool remove_edge(const Vertex& from, const Vertex& to);
-    bool remove_edge(const Edge& e); //c учетом расстояния
-    bool has_edge(const Vertex& from, const Vertex& to) const;
-    bool has_edge (const Edge& e) const; //c учетом расстояния в Edge
+    void add_edge(const Vertex& from, const Vertex& to, const Distance& d) {
+        if (!has_vertex(from) || !has_vertex(to)) {
+            throw std::runtime_error("Vertex not found"); 
+        }
+
+        size_t i = get_index(from);
+        size_t j = get_index(to);
+
+        at(_matrix[i], j) = d;
+    }
+
+    bool remove_edge(const Vertex& from, const Vertex& to) {
+        if (!has_edge(from, to)) {
+            return false;
+        }
+
+        size_t i = get_index(from);
+        size_t j = get_index(to);
+        at(_matrix[i], j) = NO_EDGE;
+
+        return true;
+    }
+
+    bool remove_edge(const Edge& e) {
+        if (!has_edge(from, to)) {
+            return false;
+        }
+
+        size_t i = get_index(from);
+        size_t j = get_index(to);
+
+        if (at(_matrix[i], j) == e.weight) {
+            at(_matrix[i], j) = NO_EDGE;
+            return true;
+        }
+
+        return false;
+    }
+
+    bool has_edge(const Vertex& from, const Vertex& to) const {
+        size_t i = get_index(from);
+        size_t j = get_index(to);
+
+        auto it = _matrix[i].begin();
+        std::advance(it, j);
+
+        return !(*it == NO_EDGE);
+    }
+
+    bool has_edge (const Edge& e) const {
+        if (has_edge(e.from, e.to)) {
+            size_t i = get_index(e.from);
+            size_t j = get_index(e.to);
+
+            auto it = _matrix[i].begin();
+            std::advance(it, j);
+
+            if (*it == e.weight) {
+                return true;
+            }
+        }
+        return false;
+    } 
     
     //получение всех ребер, выходящих из вершины
     std::vector<Edge> edges(const Vertex& vertex);
