@@ -91,6 +91,11 @@ public:
     //vertex - вершина 
     //edge - ребро 
 
+    Graph() : _vert_count(0),
+          _indices(std::unordered_map<Vertex, size_t>()),
+          _vertices(std::vector<Vertex>()),
+          _matrix(std::vector<std::list<Distance>>()) {}
+
     struct Edge{
         Vertex from;
         Vertex to;
@@ -288,27 +293,27 @@ public:
         for (size_t k = 0; k < _vert_count - 1; ++k) {
             bool changed = false;
             for (size_t u = 0; u < _vert_count; ++u) {
-                if (dist[u] != NO_EDGE) {
-                    for (size_t v = 0; v < _vert_count; ++v) {
-                        Distance w = at(_matrix[u], v);
-                        if (w != NO_EDGE && dist[u] + w < dist[v]) {
-                            dist[v] = dist[u] + w;
-                            parent[v] = u;
-                            changed = true;
-                        }
+                if (dist[u] == NO_EDGE) continue;
+                for (size_t v = 0; v < _vert_count; ++v) {
+                    Distance w = at(_matrix[u], v);
+                    if (w != NO_EDGE && dist[u] + w < dist[v]) {
+                        dist[v] = dist[u] + w;
+                        parent[v] = u;
+                        changed = true;
                     }
                 }
             }
-            if (!changed) {
-                break;
-            }
+            if (!changed) break;
         }
 
         if (dist[dst] == NO_EDGE) return {};
 
         std::vector<Edge> path;
-        for (size_t cur = dst; cur != src; cur = parent[cur]) {
+        size_t cur = dst;
+        while (cur != src) {
+            if (parent[cur] == _vert_count) return {};
             path.emplace_back(_vertices[parent[cur]], _vertices[cur], at(_matrix[parent[cur]], cur));
+            cur = parent[cur];
         }
         std::reverse(path.begin(), path.end());
         return path;
@@ -326,25 +331,22 @@ public:
         return result;
     }
 
-    void print() const {
-        std::cout << "=== Graph (" << _vert_count << " vertices) ===\n";
         
-        for (size_t i = 0; i < _vert_count; ++i) {
-            std::cout << _vertices[i] << " -> ";
+    void print() const {
+        std::cout << "Граф (" << _vert_count << " вершин)\n";
+
+        for (size_t i = 0; i < _vert_count; i++) {
+            std::cout << "  [" << _vertices[i] << "] -> ";
             bool first = true;
-            
-            for (size_t j = 0; j < _vert_count; ++j) {
+            for (size_t j = 0; j < _vert_count; j++) {
                 Distance w = at(_matrix[i], j);
                 if (w != NO_EDGE) {
                     if (!first) std::cout << ", ";
-                    std::cout << _vertices[j] << "[" << w << "]";
+                    std::cout << _vertices[j] << "(" << w << ")";
                     first = false;
                 }
             }
-            
-            if (first) {
-                std::cout << "(no edges)";
-            }
+            if (first) std::cout << "(-)";
             std::cout << "\n";
         }
     }
