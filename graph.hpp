@@ -88,9 +88,6 @@ private:
     }
 
 public:
-    //vertex - вершина 
-    //edge - ребро 
-
     Graph() : _vert_count(0),
           _indices(std::unordered_map<Vertex, size_t>()),
           _vertices(std::vector<Vertex>()),
@@ -275,9 +272,9 @@ public:
         }
 
         return true;
-    } //является ли граф сильно связным
+    } 
 
-    //поиск кратчайшего пути
+    //добавить проверку на отрицательный цикл
     std::vector<Edge> shortest_path(const Vertex& from, const Vertex& to) const {
         if (!has_vertex(from) || !has_vertex(to)) {
             throw std::runtime_error("Vertex not found");
@@ -290,11 +287,11 @@ public:
         std::vector<size_t> parent(_vert_count, _vert_count);
         dist[src] = 0;
 
-        for (size_t k = 0; k < _vert_count - 1; ++k) {
+        for (size_t k = 0; k < _vert_count - 1; k++) {
             bool changed = false;
-            for (size_t u = 0; u < _vert_count; ++u) {
+            for (size_t u = 0; u < _vert_count; u++) {
                 if (dist[u] == NO_EDGE) continue;
-                for (size_t v = 0; v < _vert_count; ++v) {
+                for (size_t v = 0; v < _vert_count; v++) {
                     Distance w = at(_matrix[u], v);
                     if (w != NO_EDGE && dist[u] + w < dist[v]) {
                         dist[v] = dist[u] + w;
@@ -304,6 +301,16 @@ public:
                 }
             }
             if (!changed) break;
+        }
+
+        for (size_t u = 0; u < _vert_count; u++) {
+            if (dist[u] == NO_EDGE) continue;
+            for (size_t v = 0; v < _vert_count; v++) {
+                Distance w = at(_matrix[u], v);
+                if (w != NO_EDGE && dist[u] + w < dist[v]) {
+                    throw std::runtime_error("Graph contains a negative cycle");
+                }
+            }
         }
 
         if (dist[dst] == NO_EDGE) return {};
@@ -319,7 +326,6 @@ public:
         return path;
     }
     
-    //обход
     std::vector<Vertex>  walk(const Vertex& start_vertex, std::function<void(const Vertex&)> action)const {
         if (!has_vertex(start_vertex)) {
             throw std::runtime_error("Vertex not found");
